@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { CaretRightIcon, CheckIcon } from '@phosphor-icons/react'
+import { CaretRightIcon, CheckIcon, ClockIcon, InfoIcon, TrophyIcon } from '@phosphor-icons/react'
 import { MODULES } from '../content.js'
 import { useStore, dateKey } from '../store.jsx'
-import { Choice, SpeakButton, TopBar } from '../components.jsx'
+import { Choice, IconBadge, PageHead, Progress, SpeakButton, TopBar } from '../components.jsx'
 import { go } from '../router.js'
 
 export function LearnList() {
@@ -11,24 +11,25 @@ export function LearnList() {
 
   return (
     <main className="screen">
-      <div className="stack" style={{ gap: '0.4rem' }}>
-        <h1>Belajar</h1>
-        <p className="lead">Urutan di bawah ini disarankan, tapi boleh dibuka yang mana saja.</p>
-        <p className="progress-text">{readCount} dari {MODULES.length} materi sudah dibaca</p>
-      </div>
+      <PageHead title="Belajar" lead="Urutan di bawah ini disarankan, tapi boleh dibuka yang mana saja." />
 
-      <ol className="module-list">
+      <section className="card progress-card" aria-label="Kemajuan belajar">
+        <p>{readCount} dari {MODULES.length} materi sudah dibaca</p>
+        <Progress value={readCount} max={MODULES.length} label="Materi yang sudah dibaca" />
+      </section>
+
+      <ol className="list-group">
         {MODULES.map((m, i) => {
           const l = state.learn[m.id]
           const meta = [`${m.minutes} menit baca`]
           if (l?.quizDone) meta.push(`kuis benar ${l.quizScore} dari ${m.quiz.length}`)
           return (
-            <li key={m.id} className={`module-item${l?.read ? ' is-read' : ''}`}>
-              <a href={`#/belajar/${m.id}`}>
+            <li key={m.id} className={l?.read ? 'is-read' : undefined}>
+              <a href={`#/belajar/${m.id}`} className="list-row">
                 <span className="module-num" aria-hidden="true">{l?.read ? <CheckIcon weight="bold" /> : i + 1}</span>
                 <span className="row-text">
-                  <span className="module-title">{m.title}</span>
-                  <span className="module-meta">
+                  <span className="row-title">{m.title}</span>
+                  <span className="row-sub">
                     {l?.read ? 'Sudah dibaca. ' : ''}
                     {meta.join(', ')}
                   </span>
@@ -45,7 +46,8 @@ export function LearnList() {
 
 export function ModulePage({ id }) {
   const { state, update } = useStore()
-  const m = MODULES.find((x) => x.id === id)
+  const idx = MODULES.findIndex((x) => x.id === id)
+  const m = MODULES[idx]
   if (!m) return <NotFound />
 
   const spoken = [m.title, ...m.sections.flatMap((s) => [s.heading, s.body])].join('. ')
@@ -59,21 +61,26 @@ export function ModulePage({ id }) {
     <>
       <TopBar title="Materi" fallback="/belajar" />
       <main className="screen">
-        <article className="article">
-          <div className="stack" style={{ gap: '0.4rem' }}>
+        <article className="article narrow">
+          <div className="article-head">
+            <div className="article-meta">
+              <span className="pill lime">Materi {idx + 1} dari {MODULES.length}</span>
+              <span className="pill"><ClockIcon weight="bold" aria-hidden="true" /> {m.minutes} menit baca</span>
+            </div>
             <h1>{m.title}</h1>
-            <p className="muted">{m.minutes} menit baca</p>
+            <SpeakButton text={spoken} />
           </div>
-          <SpeakButton text={spoken} />
-          {m.sections.map((s) => (
-            <section key={s.heading}>
-              <h2>{s.heading}</h2>
-              <p>{s.body}</p>
-            </section>
-          ))}
-          <p className="draft-note">Materi contoh untuk prototipe. Naskah final dari peneliti dan divalidasi ahli materi.</p>
+          <div className="card article-body">
+            {m.sections.map((s) => (
+              <section key={s.heading}>
+                <h2>{s.heading}</h2>
+                <p>{s.body}</p>
+              </section>
+            ))}
+          </div>
+          <p className="draft-note"><InfoIcon weight="bold" aria-hidden="true" style={{ flex: 'none', width: '1.3rem', height: '1.3rem' }} />Materi contoh untuk prototipe. Naskah final dari peneliti dan divalidasi ahli materi.</p>
         </article>
-        <div className="btn-row">
+        <div className="btn-row narrow">
           <button type="button" className="btn" onClick={finish}>
             Selesai membaca, lanjut kuis
           </button>
@@ -134,12 +141,13 @@ export function QuizPage({ id }) {
       <>
         <TopBar title="Kuis" fallback="/belajar" />
         <main className="screen">
-          <div className="stack">
+          <section className="card result-card narrow">
+            <IconBadge Icon={TrophyIcon} tone="lime" size="xl" />
             <h1>Kuis selesai</h1>
-            <p className="lead">Benar {score} dari {m.quiz.length} pertanyaan.</p>
-            <p>{score === m.quiz.length ? 'Semua jawaban benar.' : 'Materinya bisa dibaca lagi kapan saja.'}</p>
-          </div>
-          <div className="btn-row">
+            <p className="score" aria-label={`Benar ${score} dari ${m.quiz.length} pertanyaan`}>{score}<small> / {m.quiz.length}</small></p>
+            <p className="lead">{score === m.quiz.length ? 'Semua jawaban benar.' : 'Materinya bisa dibaca lagi kapan saja.'}</p>
+          </section>
+          <div className="btn-row narrow">
             {nextModule && (
               <a href={`#/belajar/${nextModule.id}`} className="btn">Materi berikutnya: {nextModule.title}</a>
             )}
@@ -157,7 +165,11 @@ export function QuizPage({ id }) {
     <>
       <TopBar title={`Kuis: ${m.title}`} fallback={`/belajar/${m.id}`} />
       <main className="screen">
-        <p className="progress-text">Pertanyaan {i + 1} dari {m.quiz.length}</p>
+        <div className="quiz-progress narrow">
+          <p className="progress-text">Pertanyaan {i + 1} dari {m.quiz.length}</p>
+          <Progress value={i + (checked ? 1 : 0)} max={m.quiz.length} label="Kemajuan kuis" />
+        </div>
+        <div className="form-cards narrow stack" style={{ gap: '1.25rem' }}>
         <Choice
           label={q.q}
           value={choice}
@@ -182,6 +194,7 @@ export function QuizPage({ id }) {
         ) : (
           <button type="button" className="btn" onClick={check}>Periksa jawaban</button>
         )}
+        </div>
       </main>
     </>
   )

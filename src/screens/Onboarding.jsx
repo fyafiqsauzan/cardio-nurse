@@ -2,15 +2,12 @@ import { useState } from 'react'
 import { BackspaceIcon, BookOpenTextIcon, ScalesIcon, SirenIcon, HandHeartIcon } from '@phosphor-icons/react'
 import { useStore } from '../store.jsx'
 import { DEMO_LOGIN } from '../content.js'
-import { Choice, Form, TextSizeButton } from '../components.jsx'
+import { Brand, Choice, Form, IconBadge, TextSizeButton } from '../components.jsx'
 
 function PlainHeader() {
   return (
     <header className="app-header">
-      <span className="wordmark">
-        <span className="wordmark-mark" aria-hidden="true" />
-        Cardio Nurse
-      </span>
+      <Brand />
       <div className="app-header-tools">
         <TextSizeButton />
       </div>
@@ -45,12 +42,12 @@ export function Consent() {
       <PlainHeader />
       <main className="screen">
         <div className="stack">
-          <HandHeartIcon weight="duotone" className="hero-icon duo" aria-hidden="true" />
+          <span className="hero-art"><IconBadge Icon={HandHeartIcon} size="xl" /></span>
           <h1>Persetujuan ikut penelitian</h1>
           <p className="lead">Silakan baca dulu. Kalau ada yang kurang jelas, tanyakan ke peneliti.</p>
         </div>
 
-        <div className="consent-box" tabIndex={0} aria-label="Isi lembar persetujuan">
+        <div className="card consent-box" tabIndex={0} aria-label="Isi lembar persetujuan">
           <h2>Tentang penelitian ini</h2>
           <p>[Teks dari peneliti] Judul penelitian, nama peneliti, dan institusi.</p>
           <h2>Apa yang Bapak/Ibu lakukan</h2>
@@ -119,6 +116,11 @@ export function Login() {
     <>
       <PlainHeader />
       <main className="screen">
+        <div className="welcome">
+          <span className="brand-mark lg" aria-hidden="true" />
+          <span className="welcome-name">Cardio Nurse</span>
+          <p className="muted">Teman perawatan jantung di rumah</p>
+        </div>
         {step === 'code' ? (
           <Form className="stack" onSubmit={submitCode}>
             <h1>Masuk</h1>
@@ -196,7 +198,7 @@ export function Intro() {
           {SLIDES.map((_, n) => <span key={n} className={n === i ? 'on' : ''} />)}
         </div>
         <div className="stack" style={{ flex: 1 }}>
-          <slide.Icon weight="duotone" className="hero-icon duo" aria-hidden="true" />
+          <span className="hero-art"><IconBadge Icon={slide.Icon} size="xl" /></span>
           <h1>{slide.title}</h1>
           <p className="lead">{slide.body}</p>
         </div>
@@ -244,7 +246,7 @@ export function Assessment() {
     <>
       <PlainHeader />
       <main className="screen">
-        <Form className="stack" style={{ gap: '1.5rem' }} onSubmit={submit}>
+        <Form className="stack form-cards" style={{ gap: '1.25rem' }} onSubmit={submit}>
           <div className="stack">
             <h1>Kenalan dulu</h1>
             <p className="lead">Supaya aplikasi bisa menyapa dengan benar.</p>

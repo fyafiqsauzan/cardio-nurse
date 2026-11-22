@@ -1,6 +1,7 @@
 import { useStore } from './store.jsx'
 import { useRoute } from './router.js'
-import { AppHeader, BottomNav } from './components.jsx'
+import { BookOpenTextIcon, HeartbeatIcon, PillIcon } from '@phosphor-icons/react'
+import { AppHeader, BottomNav, Brand, IconBadge, SideNav } from './components.jsx'
 import { Consent, Login, Intro, Assessment } from './screens/Onboarding.jsx'
 import Home from './screens/Home.jsx'
 import { LearnList, ModulePage, QuizPage } from './screens/Learn.jsx'
@@ -33,14 +34,44 @@ export default function App() {
   else if (!state.introDone) content = <Intro />
   else if (!state.profile) content = <Assessment />
 
-  if (content) return <div className="app">{content}</div>
+  if (content) {
+    return (
+      <div className="app onboard">
+        <OnboardBrand />
+        <div className="onboard-main">
+          <div className="app-main">{content}</div>
+        </div>
+      </div>
+    )
+  }
 
   const { el, tab } = resolve(path)
   return (
-    <div className={`app${tab ? ' with-nav' : ''}`}>
-      {tab && <AppHeader />}
-      {el}
+    <div className={`app shell${tab ? ' with-nav' : ''}`}>
+      <SideNav path={path} />
+      <div className="app-main">
+        {tab && <AppHeader />}
+        {el}
+      </div>
       {tab && <BottomNav path={path} />}
     </div>
+  )
+}
+
+/* Panel merek di kiri layar persetujuan & masuk (hanya di layar lebar). */
+function OnboardBrand() {
+  return (
+    <aside className="onboard-brand">
+      <Brand />
+      <div className="onboard-art" aria-hidden="true">
+        <IconBadge Icon={HeartbeatIcon} className="a1" />
+        <IconBadge Icon={PillIcon} className="a2" />
+        <IconBadge Icon={BookOpenTextIcon} className="a3" />
+      </div>
+      <div className="stack">
+        <h2>Teman perawatan jantung di rumah</h2>
+        <p>Belajar, mencatat, dan minum obat tepat waktu, dengan huruf besar dan tombol yang mudah ditekan.</p>
+      </div>
+    </aside>
   )
 }

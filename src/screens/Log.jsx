@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
-import { CheckIcon, PhoneIcon, WarningIcon, SirenIcon } from '@phosphor-icons/react'
+import { CalendarCheckIcon, ChartLineUpIcon, CheckIcon, InfoIcon, NotePencilIcon, PhoneIcon, ScalesIcon, SirenIcon, WarningIcon } from '@phosphor-icons/react'
 import { useStore, dateKey, evaluateLog, formatLongDate, formatShortDate, formatKg } from '../store.jsx'
 import { CONTACTS } from '../content.js'
-import { Choice, Form, TopBar } from '../components.jsx'
+import { Choice, EmptyState, Form, IconBadge, PageHead, TopBar } from '../components.jsx'
 import { go } from '../router.js'
 
 const SESAK = { tidak: 'Tidak sesak', ringan: 'Sesak ringan', berat: 'Sesak berat' }
@@ -21,7 +21,7 @@ function flagsOf(log) {
 
 function WeightChart({ entries }) {
   if (entries.length < 2) {
-    return <p className="empty">Grafik muncul setelah ada catatan berat badan minimal 2 hari.</p>
+    return <EmptyState Icon={ChartLineUpIcon}>Grafik muncul setelah ada catatan berat badan minimal 2 hari.</EmptyState>
   }
   const W = 340
   const H = 190
@@ -37,6 +37,7 @@ function WeightChart({ entries }) {
   const x = (i) => pad.l + (i * (W - pad.l - pad.r)) / (entries.length - 1)
   const y = (w) => pad.t + ((max - w) * (H - pad.t - pad.b)) / (max - min)
   const points = entries.map((e, i) => `${x(i)},${y(e.weight)}`).join(' ')
+  const area = `${x(0)},${H - pad.b} ${points} ${x(entries.length - 1)},${H - pad.b}`
   const first = entries[0]
   const lastE = entries[entries.length - 1]
 
@@ -47,13 +48,20 @@ function WeightChart({ entries }) {
       role="img"
       aria-label={`Grafik berat badan ${entries.length} catatan terakhir, dari ${formatKg(first.weight)} pada ${formatShortDate(first.key)} sampai ${formatKg(lastE.weight)} pada ${formatShortDate(lastE.key)}`}
     >
-      <line x1={pad.l} x2={W - pad.r} y1={y(max)} y2={y(max)} stroke="#cfd4e6" strokeWidth="1.5" strokeDasharray="4 4" />
-      <line x1={pad.l} x2={W - pad.r} y1={y(min)} y2={y(min)} stroke="#cfd4e6" strokeWidth="1.5" strokeDasharray="4 4" />
+      <defs>
+        <linearGradient id="chart-fill" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#14b8ad" stopOpacity="0.28" />
+          <stop offset="1" stopColor="#14b8ad" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <line x1={pad.l} x2={W - pad.r} y1={y(max)} y2={y(max)} stroke="#dbe5e8" strokeWidth="1.5" strokeDasharray="4 4" />
+      <line x1={pad.l} x2={W - pad.r} y1={y(min)} y2={y(min)} stroke="#dbe5e8" strokeWidth="1.5" strokeDasharray="4 4" />
+      <polygon points={area} fill="url(#chart-fill)" />
       <text x={pad.l - 6} y={y(max) + 4} textAnchor="end">{max.toFixed(1).replace('.', ',')}</text>
       <text x={pad.l - 6} y={y(min) + 4} textAnchor="end">{min.toFixed(1).replace('.', ',')}</text>
-      <polyline points={points} fill="none" stroke="#1f2a6b" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+      <polyline points={points} fill="none" stroke="#0a6f69" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
       {entries.map((e, i) => (
-        <circle key={e.key} cx={x(i)} cy={y(e.weight)} r={i === entries.length - 1 ? 6 : 4} fill={i === entries.length - 1 ? '#f2b705' : '#1f2a6b'} stroke="#1f2a6b" strokeWidth="2" />
+        <circle key={e.key} cx={x(i)} cy={y(e.weight)} r={i === entries.length - 1 ? 6 : 4} fill={i === entries.length - 1 ? '#cddc29' : '#ffffff'} stroke="#0a6f69" strokeWidth="2.5" />
       ))}
       <text x={x(0)} y={H - 8} textAnchor="start">{formatShortDate(first.key)}</text>
       <text x={x(entries.length - 1)} y={H - 8} textAnchor="end">{formatShortDate(lastE.key)}</text>
@@ -72,49 +80,59 @@ export function LogHome() {
 
   return (
     <main className="screen">
-      <h1>Catatan harian</h1>
+      <PageHead title="Catatan harian" lead="Berat badan dan keluhan, dicatat setiap pagi." />
 
-      <section className="today-panel" aria-labelledby="today-title">
-        <h2 id="today-title">Hari ini</h2>
-        {todayLog ? (
-          <>
-            <dl className="summary-list">
-              <div><dt>Berat badan</dt><dd>{formatKg(todayLog.weight)}</dd></div>
-              <div><dt>Keluhan</dt><dd className={flagsOf(todayLog).length ? 'warn' : ''}>{flagsOf(todayLog).join(', ') || 'Tidak ada keluhan'}</dd></div>
-            </dl>
-            <a href="#/catatan/isi" className="btn btn-outline">Ubah catatan hari ini</a>
-          </>
-        ) : (
-          <>
-            <p>Belum ada catatan. Timbang badan dulu, lalu isi catatan.</p>
-            <a href="#/catatan/isi" className="btn">Isi catatan hari ini</a>
-          </>
-        )}
-      </section>
+      <div className="home-grid">
+        <section className="card" aria-labelledby="today-title">
+          <div className="card-head">
+            <h2 id="today-title">Hari ini</h2>
+            <span className={`pill${todayLog ? ' ok' : ''}`}>{todayLog ? 'Sudah dicatat' : 'Belum dicatat'}</span>
+          </div>
+          {todayLog ? (
+            <>
+              <dl className="summary-list">
+                <div><dt>Berat badan</dt><dd>{formatKg(todayLog.weight)}</dd></div>
+                <div><dt>Keluhan</dt><dd className={flagsOf(todayLog).length ? 'warn' : ''}>{flagsOf(todayLog).join(', ') || 'Tidak ada keluhan'}</dd></div>
+              </dl>
+              <a href="#/catatan/isi" className="btn btn-outline">Ubah catatan hari ini</a>
+            </>
+          ) : (
+            <>
+              <EmptyState Icon={ScalesIcon}>Belum ada catatan. Timbang badan dulu, lalu isi catatan.</EmptyState>
+              <a href="#/catatan/isi" className="btn"><NotePencilIcon weight="bold" aria-hidden="true" /> Isi catatan hari ini</a>
+            </>
+          )}
+        </section>
 
-      <section className="stack" aria-labelledby="chart-title">
-        <h2 id="chart-title">Berat badan</h2>
-        <WeightChart entries={entries} />
-      </section>
+        <section className="card" aria-labelledby="chart-title">
+          <h2 id="chart-title">Berat badan</h2>
+          <WeightChart entries={entries} />
+        </section>
+      </div>
 
       <section className="stack" aria-labelledby="history-title">
-        <h2 id="history-title">Riwayat</h2>
+        <h2 id="history-title" className="group-label">Riwayat</h2>
         {keys.length ? (
-          <ul className="history">
+          <ul className="list-group history-list">
             {[...keys].reverse().slice(0, 14).map((k) => {
               const l = state.logs[k]
               const f = flagsOf(l)
               return (
                 <li key={k}>
-                  <span className="h-date">{formatLongDate(k)}</span>
-                  <span className="h-weight">{formatKg(l.weight)}</span>
-                  <span className={`h-flags${l.alert ? ' warn' : ''}`}>{f.length ? f.join(', ') : 'Tidak ada keluhan'}</span>
+                  <div className="list-row">
+                    <IconBadge Icon={l.alert ? WarningIcon : CalendarCheckIcon} tone={l.alert ? 'danger' : undefined} />
+                    <span className="row-text">
+                      <span className="row-title">{formatLongDate(k)}</span>
+                      <span className={`row-sub${l.alert ? ' warn' : ''}`}>{f.length ? f.join(', ') : 'Tidak ada keluhan'}</span>
+                    </span>
+                    <span className="h-weight">{formatKg(l.weight)}</span>
+                  </div>
                 </li>
               )
             })}
           </ul>
         ) : (
-          <p className="empty">Riwayat masih kosong. Catatan pertama akan muncul di sini.</p>
+          <EmptyState Icon={CalendarCheckIcon}>Riwayat masih kosong. Catatan pertama akan muncul di sini.</EmptyState>
         )}
       </section>
     </main>
@@ -176,11 +194,8 @@ export function LogForm() {
     <>
       <TopBar title="Catatan hari ini" fallback="/catatan" />
       <main className="screen">
-        <Form ref={formRef} className="stack" style={{ gap: '1.75rem' }} onSubmit={submit}>
-          <div className="stack" style={{ gap: '0.25rem' }}>
-            <h1>Catatan hari ini</h1>
-            <p className="lead">{formatLongDate(today)}</p>
-          </div>
+        <Form ref={formRef} className="stack form-cards narrow" style={{ gap: '1.25rem' }} onSubmit={submit}>
+          <PageHead title="Catatan hari ini" lead={formatLongDate(today)} />
 
           <div className={`field stepper${errors.weight ? ' has-error' : ''}`}>
             <label htmlFor="weight">Berat badan pagi ini</label>
@@ -280,14 +295,14 @@ export function LogResult() {
     return (
       <main className={`screen alert-screen level-${log.alert}`} role="alert" aria-live="assertive">
         {urgent ? <SirenIcon weight="bold" className="alert-icon" aria-hidden="true" /> : <WarningIcon weight="bold" className="alert-icon" aria-hidden="true" />}
-        <div className="stack">
+        <div className="stack narrow">
           <h1>{urgent ? 'Segera ke IGD atau telepon 119' : `${state.profile.salutation} perlu menghubungi perawat hari ini`}</h1>
           <p className="lead" style={{ color: 'var(--ink)' }}>Catatan hari ini menunjukkan:</p>
           <ul className="reason-list">
             {log.reasons.map((r) => <li key={r}>{r}</li>)}
           </ul>
         </div>
-        <div className="btn-row">
+        <div className="btn-row narrow">
           {urgent ? (
             <>
               <a href={`tel:${CONTACTS.emergency.number}`} className="btn btn-danger">
@@ -307,7 +322,7 @@ export function LogResult() {
           )}
           <a href="#/" className="text-link">Saya sudah menghubungi, kembali ke beranda</a>
         </div>
-        <p className="draft-note">Aturan peringatan ini contoh untuk prototipe dan wajib divalidasi tenaga kesehatan.</p>
+        <p className="draft-note narrow"><InfoIcon weight="bold" aria-hidden="true" style={{ flex: 'none', width: '1.3rem', height: '1.3rem' }} />Aturan peringatan ini contoh untuk prototipe dan wajib divalidasi tenaga kesehatan.</p>
       </main>
     )
   }
@@ -315,15 +330,17 @@ export function LogResult() {
   return (
     <main className="screen">
       <div className="success-mark" aria-hidden="true"><CheckIcon weight="bold" /></div>
-      <div className="stack">
+      <div className="stack narrow">
         <h1>Catatan tersimpan</h1>
         <p className="lead">Tidak ada tanda bahaya dari catatan hari ini. Tetap minum obat sesuai jadwal.</p>
       </div>
-      <dl className="summary-list">
-        <div><dt>Berat badan</dt><dd>{formatKg(log.weight)}</dd></div>
-        <div><dt>Keluhan</dt><dd>{flagsOf(log).join(', ') || 'Tidak ada keluhan'}</dd></div>
-      </dl>
-      <div className="btn-row">
+      <div className="card narrow">
+        <dl className="summary-list">
+          <div><dt>Berat badan</dt><dd>{formatKg(log.weight)}</dd></div>
+          <div><dt>Keluhan</dt><dd>{flagsOf(log).join(', ') || 'Tidak ada keluhan'}</dd></div>
+        </dl>
+      </div>
+      <div className="btn-row narrow">
         <a href="#/" className="btn">Kembali ke beranda</a>
         <a href="#/catatan" className="btn btn-outline">Lihat riwayat catatan</a>
       </div>

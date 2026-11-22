@@ -16,29 +16,40 @@ import { back } from './router.js'
 const SIZES = ['normal', 'besar', 'sangat']
 export const SIZE_LABEL = { normal: 'Normal', besar: 'Besar', sangat: 'Sangat besar' }
 
-export function TextSizeButton() {
+function useTextSize() {
   const { state, update } = useStore()
   const next = SIZES[(SIZES.indexOf(state.fontSize) + 1) % SIZES.length]
+  return {
+    label: `Ukuran huruf: ${SIZE_LABEL[state.fontSize]}. Ketuk untuk ganti ke ${SIZE_LABEL[next]}`,
+    current: SIZE_LABEL[state.fontSize],
+    cycle: () => update({ fontSize: next }),
+  }
+}
+
+export function TextSizeButton() {
+  const { label, cycle } = useTextSize()
   return (
-    <button
-      type="button"
-      className="tool-btn"
-      onClick={() => update({ fontSize: next })}
-      aria-label={`Ukuran huruf: ${SIZE_LABEL[state.fontSize]}. Ketuk untuk ganti ke ${SIZE_LABEL[next]}`}
-    >
+    <button type="button" className="tool-btn" onClick={cycle} aria-label={label}>
       <TextAaIcon weight="bold" aria-hidden="true" />
       <span>Huruf</span>
     </button>
   )
 }
 
+export function Brand({ as: Tag = 'span', ...props }) {
+  return (
+    <Tag className="brand" {...props}>
+      <span className="brand-mark" aria-hidden="true" />
+      Cardio Nurse
+    </Tag>
+  )
+}
+
+/* Header layar utama di ponsel. Di layar lebar diganti navigasi samping. */
 export function AppHeader() {
   return (
     <header className="app-header">
-      <a href="#/" className="wordmark" aria-label="Cardio Nurse, ke beranda">
-        <span className="wordmark-mark" aria-hidden="true" />
-        Cardio Nurse
-      </a>
+      <Brand as="a" href="#/" aria-label="Cardio Nurse, ke beranda" />
       <div className="app-header-tools">
         <TextSizeButton />
         <a href="#/pengaturan" className="tool-btn">
@@ -63,7 +74,7 @@ export function TopBar({ title, fallback = '/' }) {
   )
 }
 
-const TABS = [
+export const TABS = [
   { href: '#/', match: (p) => p === '/', label: 'Beranda', Icon: HouseIcon },
   { href: '#/belajar', match: (p) => p.startsWith('/belajar'), label: 'Belajar', Icon: BookOpenTextIcon },
   { href: '#/catatan', match: (p) => p.startsWith('/catatan'), label: 'Catatan', Icon: NotePencilIcon },
@@ -77,12 +88,75 @@ export function BottomNav({ path }) {
         const active = match(path)
         return (
           <a key={href} href={href} className="tab" aria-current={active ? 'page' : undefined}>
-            <Icon weight="duotone" className="duo" aria-hidden="true" />
+            <span className="tab-icon"><Icon weight="duotone" className="duo" aria-hidden="true" /></span>
             <span>{label}</span>
           </a>
         )
       })}
     </nav>
+  )
+}
+
+/* Navigasi samping untuk laptop/komputer (disembunyikan di ponsel lewat CSS). */
+export function SideNav({ path }) {
+  const { label, current, cycle } = useTextSize()
+  return (
+    <nav className="side-nav" aria-label="Menu utama">
+      <Brand as="a" href="#/" aria-label="Cardio Nurse, ke beranda" />
+      {TABS.map(({ href, match, label: text, Icon }) => (
+        <a key={href} href={href} className="side-link" aria-current={match(path) ? 'page' : undefined}>
+          <Icon weight="duotone" className="duo" aria-hidden="true" />
+          {text}
+        </a>
+      ))}
+      <span className="side-sep" />
+      <button type="button" className="side-link" onClick={cycle} aria-label={label}>
+        <TextAaIcon weight="bold" aria-hidden="true" />
+        Huruf: {current}
+      </button>
+      <a href="#/pengaturan" className="side-link" aria-current={path.startsWith('/pengaturan') ? 'page' : undefined}>
+        <GearSixIcon weight="bold" aria-hidden="true" />
+        Pengaturan
+      </a>
+    </nav>
+  )
+}
+
+/* Ikon di dalam lingkaran. tone: teal (bawaan), lime, solid, danger. size: lg, xl. */
+export function IconBadge({ Icon, tone, size, weight = 'duotone', className = '' }) {
+  const cls = ['icon-badge', tone, size, className].filter(Boolean).join(' ')
+  return (
+    <span className={cls} aria-hidden="true">
+      <Icon weight={weight} className="duo" />
+    </span>
+  )
+}
+
+export function PageHead({ title, lead, children }) {
+  return (
+    <div className="page-head">
+      <h1>{title}</h1>
+      {lead && <p className="lead">{lead}</p>}
+      {children}
+    </div>
+  )
+}
+
+export function EmptyState({ Icon, children }) {
+  return (
+    <div className="empty">
+      <IconBadge Icon={Icon} />
+      <p>{children}</p>
+    </div>
+  )
+}
+
+export function Progress({ value, max, label }) {
+  const pct = max ? Math.round((value / max) * 100) : 0
+  return (
+    <div className="progress" role="progressbar" aria-valuemin={0} aria-valuemax={max} aria-valuenow={value} aria-label={label}>
+      <span style={{ width: `${pct}%` }} />
+    </div>
   )
 }
 
