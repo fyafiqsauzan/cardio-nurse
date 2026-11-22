@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { CheckIcon, PhoneIcon, WarningIcon, SirenIcon } from '@phosphor-icons/react'
 import { useStore, dateKey, evaluateLog, formatLongDate, formatShortDate, formatKg } from '../store.jsx'
 import { CONTACTS } from '../content.js'
-import { Choice, TopBar } from '../components.jsx'
+import { Choice, Form, TopBar } from '../components.jsx'
 import { go } from '../router.js'
 
 const SESAK = { tidak: 'Tidak sesak', ringan: 'Sesak ringan', berat: 'Sesak berat' }
@@ -176,7 +176,7 @@ export function LogForm() {
     <>
       <TopBar title="Catatan hari ini" fallback="/catatan" />
       <main className="screen">
-        <form ref={formRef} className="stack" style={{ gap: '1.75rem' }} onSubmit={submit} noValidate>
+        <Form ref={formRef} className="stack" style={{ gap: '1.75rem' }} onSubmit={submit}>
           <div className="stack" style={{ gap: '0.25rem' }}>
             <h1>Catatan hari ini</h1>
             <p className="lead">{formatLongDate(today)}</p>
@@ -253,7 +253,7 @@ export function LogForm() {
           />
 
           <button type="submit" className="btn">Simpan catatan</button>
-        </form>
+        </Form>
       </main>
     </>
   )

@@ -86,6 +86,28 @@ export function BottomNav({ path }) {
   )
 }
 
+/* Form yang tetap jalan di bingkai sandbox (mis. pratinjau file HTML di app chat).
+   Di sana submit bawaan browser diblokir sehingga onSubmit tidak pernah terpanggil,
+   tetapi event klik pada tombol submit tetap muncul, termasuk saat menekan Enter.
+   Jadi form dikirim dari klik tombol; onSubmit hanya cadangan. */
+export function Form({ onSubmit, children, ...props }) {
+  function handleClick(e) {
+    const btn = e.target.closest('button')
+    if (!btn || btn.type !== 'submit' || btn.form !== e.currentTarget) return
+    e.preventDefault()
+    onSubmit(e)
+  }
+  function handleSubmit(e) {
+    e.preventDefault()
+    onSubmit(e)
+  }
+  return (
+    <form {...props} noValidate onClick={handleClick} onSubmit={handleSubmit}>
+      {children}
+    </form>
+  )
+}
+
 export function Choice({ label, hint, value, options, onChange, error }) {
   const name = useId()
   return (

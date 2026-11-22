@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { BackspaceIcon, BookOpenTextIcon, ScalesIcon, SirenIcon, HandHeartIcon } from '@phosphor-icons/react'
 import { useStore } from '../store.jsx'
 import { DEMO_LOGIN } from '../content.js'
-import { Choice, TextSizeButton } from '../components.jsx'
+import { Choice, Form, TextSizeButton } from '../components.jsx'
 
 function PlainHeader() {
   return (
@@ -120,7 +120,7 @@ export function Login() {
       <PlainHeader />
       <main className="screen">
         {step === 'code' ? (
-          <form className="stack" onSubmit={submitCode} noValidate>
+          <Form className="stack" onSubmit={submitCode}>
             <h1>Masuk</h1>
             <p className="lead">Kode responden tertulis di kartu yang diberikan peneliti.</p>
             <div className={`field${error ? ' has-error' : ''}`}>
@@ -142,7 +142,7 @@ export function Login() {
             </div>
             <button type="submit" className="btn">Lanjut</button>
             <p className="demo-hint">Untuk uji coba prototipe: kode <strong>{DEMO_LOGIN.code}</strong>, PIN <strong>{DEMO_LOGIN.pin}</strong>.</p>
-          </form>
+          </Form>
         ) : (
           <div className="stack">
             <h1>Masukkan PIN</h1>
@@ -244,7 +244,7 @@ export function Assessment() {
     <>
       <PlainHeader />
       <main className="screen">
-        <form className="stack" style={{ gap: '1.5rem' }} onSubmit={submit} noValidate>
+        <Form className="stack" style={{ gap: '1.5rem' }} onSubmit={submit}>
           <div className="stack">
             <h1>Kenalan dulu</h1>
             <p className="lead">Supaya aplikasi bisa menyapa dengan benar.</p>
@@ -279,7 +279,7 @@ export function Assessment() {
           />
 
           <button type="submit" className="btn">Simpan dan mulai</button>
-        </form>
+        </Form>
       </main>
     </>
   )

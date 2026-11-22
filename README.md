@@ -21,6 +21,19 @@ npm run dev      # buka alamat yang muncul di terminal
 npm run build    # hasil siap online ada di folder dist/
 ```
 
+### Satu file HTML (tanpa hosting)
+
+```bash
+npm run build:single   # hasil: dist-single/cardio-nurse.html
+```
+
+Seluruh app (kode, font, ikon) dikemas jadi satu file `cardio-nurse.html` sekitar 530 KB. File ini bisa langsung dibuka di Chrome atau Edge di laptop, misalnya untuk validasi pembimbing dan ahli materi, tanpa perlu server.
+
+Catatan:
+- Data tersimpan di browser untuk file itu. Kalau file dipindah atau diganti nama, browser menganggapnya app baru dan datanya mulai dari kosong.
+- Kalau file dibuka lewat pratinjau di aplikasi chat, app tetap bisa dicoba, tetapi data hilang begitu pratinjau ditutup.
+- Fitur pasang ke layar utama dan mode offline (PWA) hanya ada di versi online (`npm run build`).
+
 Masuk untuk uji coba: kode **CN-001**, PIN **123456**.
 Di menu **Atur** ada tombol "Isi data contoh 7 hari" supaya grafik berat badan langsung terisi.
 
