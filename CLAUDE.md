@@ -22,7 +22,9 @@ Semua ini masih CONTOH dan menunggu jawaban pemilik skripsi:
 - `src/store.jsx` → `evaluateLog`: aturan tanda bahaya (wajib divalidasi klinisi)
 - `src/screens/Onboarding.jsx` → `Consent`: teks persetujuan dari kaji etik
 
-Daftar pertanyaan untuk pemilik skripsi ada di Claude Sheet "To-do pemilik skripsi — Cardio Nurse", tab "Kebutuhan app" (36 pertanyaan: isi app, tampilan, alur, login, lansia friendly, teknis). Tab "Tahapan skripsi" berisi tahapan penelitiannya.
+Daftar pertanyaan terbaru untuk pemilik skripsi (25 Nov 2026): Claude Doc "To-do Diana: kebutuhan app Cardio Nurse" (https://claude.ai/artifact/TBLC6sPTrAY2LELa1xY2RE). Bagian A sampai J dengan kode pertanyaan (A1, B2, dst.) dan lampiran berkas. Jawaban Diana akan merujuk kode-kode itu. A (siapa pemakai: pasien, perawat, atau keduanya; model edukasi mandiri vs alat bantu perawat bertahap seperti kalkulator GRACE) dan B (kerangka penelitian) menentukan bagian lain.
+
+Daftar lama: Claude Sheet "To-do pemilik skripsi — Cardio Nurse", tab "Kebutuhan app" (36 pertanyaan) dan tab "Tahapan skripsi".
 
 Keputusan yang masih terbuka: ada/tidaknya panel nakes, kebijakan data (server atau HP saja), login sungguhan, notifikasi pengingat, apakah SUS diisi di dalam web.
 
